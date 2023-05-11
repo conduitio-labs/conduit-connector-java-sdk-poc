@@ -4,12 +4,13 @@ import io.conduit.grpc.Destination;
 import io.conduit.grpc.DestinationPluginGrpc;
 import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
 @GrpcService
 public class DestinationService extends DestinationPluginGrpc.DestinationPluginImplBase {
     @Inject
-    io.conduit.sdk.Destination destination;
+    Instance<io.conduit.sdk.Destination> destination;
 
     @Override
     public void configure(Destination.Configure.Request request,
@@ -17,7 +18,7 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
         System.out.println("DestinationService::configure");
 
         try {
-            destination.configure(request.getConfigMap());
+            getDestination().configure(request.getConfigMap());
             responseObserver.onNext(Destination.Configure.Response.newBuilder().build());
         } catch (Exception e) {
             responseObserver.onError(e);
@@ -26,13 +27,20 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
         responseObserver.onCompleted();
     }
 
+    private io.conduit.sdk.Destination getDestination() {
+        if (destination.isUnsatisfied()) {
+            throw new IllegalArgumentException("destination not implemented");
+        }
+        return destination.get();
+    }
+
     @Override
     public void start(Destination.Start.Request request,
                       StreamObserver<Destination.Start.Response> responseObserver) {
         System.out.println("DestinationService::start");
 
         try {
-            destination.open();
+            getDestination().open();
             responseObserver.onNext(Destination.Start.Response.newBuilder().build());
         } catch (Exception e) {
             responseObserver.onError(e);
@@ -45,7 +53,7 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
     public StreamObserver<Destination.Run.Request> run(StreamObserver<Destination.Run.Response> responseObserver) {
         System.out.println("DestinationService::run");
 
-        return new DestinationStream(destination, responseObserver);
+        return new DestinationStream(getDestination(), responseObserver);
     }
 
     @Override
