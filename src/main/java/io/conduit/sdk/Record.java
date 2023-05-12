@@ -13,6 +13,7 @@ import java.util.Map;
 public class Record {
     // Operation defines what triggered the creation of a record.
 
+
     public enum Operation {
         UNSPECIFIED,
         // Records with operation create contain data of a newly created entity.
@@ -23,11 +24,11 @@ public class Record {
         DELETE,
         // Records with operation snapshot contain data of a previously existing
         // entity, fetched as part of a snapshot.
-        SNAPSHOT
+        SNAPSHOT;
     }
 
-
     private final Position position;
+
     private final Operation operation;
     private final Map<String, String> metadata;
     private final Data key;
@@ -37,6 +38,7 @@ public class Record {
         if (grpcRecord == null) {
             return null;
         }
+
         return io.conduit.sdk.Record.builder()
             .position(toSDKPosition(grpcRecord.getPosition()))
             .metadata(grpcRecord.getMetadataMap())
@@ -77,5 +79,26 @@ public class Record {
         );
 
         return m.get(operation);
+    }
+
+    public static io.conduit.grpc.Record toGRPC(Record rec) {
+        return io.conduit.grpc.Record
+            .newBuilder()
+            .setKey(toGRPCData(rec.getKey()))
+            .setPosition(ByteString.copyFrom(rec.getPosition().bytes()))
+            .setPayload(toGRPCChange(rec.getPayload()))
+            .build();
+    }
+
+    private static io.conduit.grpc.Change toGRPCChange(Change payload) {
+        return io.conduit.grpc.Change.newBuilder()
+            .setAfter(toGRPCData(payload.getAfter()))
+            .build();
+    }
+
+    private static io.conduit.grpc.Data toGRPCData(Data sdkData) {
+        return io.conduit.grpc.Data.newBuilder()
+            .setRawData(ByteString.copyFrom(sdkData.bytes()))
+            .build();
     }
 }

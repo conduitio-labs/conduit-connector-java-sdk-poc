@@ -6,13 +6,23 @@ import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
 
 @GrpcService
 public class DestinationService extends DestinationPluginGrpc.DestinationPluginImplBase {
+    private static final Logger logger = Logger.getLogger(DestinationService.class);
+
     // Using Instance<> so that it's possible that
     // a Source or Destination are not implemented
     @Inject
     Instance<io.conduit.sdk.Destination> destination;
+
+    private io.conduit.sdk.Destination getDestination() {
+        if (destination.isUnsatisfied()) {
+            throw new IllegalArgumentException("destination not implemented");
+        }
+        return destination.get();
+    }
 
     @Override
     public void configure(Destination.Configure.Request request,
@@ -22,18 +32,12 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
         try {
             getDestination().configure(request.getConfigMap());
             responseObserver.onNext(Destination.Configure.Response.newBuilder().build());
+            responseObserver.onCompleted();
         } catch (Exception e) {
+            logger.error("failed configuring destination", e);
             responseObserver.onError(e);
         }
 
-        responseObserver.onCompleted();
-    }
-
-    private io.conduit.sdk.Destination getDestination() {
-        if (destination.isUnsatisfied()) {
-            throw new IllegalArgumentException("destination not implemented");
-        }
-        return destination.get();
     }
 
     @Override
@@ -44,11 +48,12 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
         try {
             getDestination().open();
             responseObserver.onNext(Destination.Start.Response.newBuilder().build());
+            responseObserver.onCompleted();
         } catch (Exception e) {
+            logger.error("failed starting destination", e);
             responseObserver.onError(e);
         }
 
-        responseObserver.onCompleted();
     }
 
     @Override
