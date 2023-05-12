@@ -31,6 +31,7 @@ public class SourceService extends SourcePluginGrpc.SourcePluginImplBase {
     @Override
     public void configure(Source.Configure.Request request, StreamObserver<Source.Configure.Response> responseObserver) {
         try {
+            logger.info("configuring source");
             getSource().configure(request.getConfigMap());
             responseObserver.onNext(Source.Configure.Response.newBuilder().build());
         } catch (Exception e) {
@@ -44,6 +45,7 @@ public class SourceService extends SourcePluginGrpc.SourcePluginImplBase {
     @Override
     public void start(Source.Start.Request request, StreamObserver<Source.Start.Response> responseObserver) {
         try {
+            logger.info("starting source");
             getSource().open(newPosition(request.getPosition()));
         } catch (Exception e) {
             logger.error("failed opening source", e);
@@ -53,7 +55,7 @@ public class SourceService extends SourcePluginGrpc.SourcePluginImplBase {
 
     @Override
     public StreamObserver<Source.Run.Request> run(StreamObserver<Source.Run.Response> responseObserver) {
-        System.out.println("SourceService::run");
+        logger.info("running source");
 
         try {
             return new SourceStream(getSource(), responseObserver);
@@ -68,6 +70,8 @@ public class SourceService extends SourcePluginGrpc.SourcePluginImplBase {
     @Override
     public void stop(Source.Stop.Request request, StreamObserver<Source.Stop.Response> responseObserver) {
         // todo return last position read
+        logger.info("stopping source");
+
         responseObserver.onNext(Source.Stop.Response.newBuilder().build());
         responseObserver.onCompleted();
     }
@@ -75,6 +79,7 @@ public class SourceService extends SourcePluginGrpc.SourcePluginImplBase {
     @Override
     public void teardown(Source.Teardown.Request request, StreamObserver<Source.Teardown.Response> responseObserver) {
         try {
+            logger.info("source teardown called");
             getSource().teardown();
             responseObserver.onNext(Source.Teardown.Response.newBuilder().build());
             responseObserver.onCompleted();
