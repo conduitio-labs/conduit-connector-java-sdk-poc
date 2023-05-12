@@ -9,6 +9,8 @@ import jakarta.inject.Inject;
 
 @GrpcService
 public class DestinationService extends DestinationPluginGrpc.DestinationPluginImplBase {
+    // Using Instance<> so that it's possible that
+    // a Source or Destination are not implemented
     @Inject
     Instance<io.conduit.sdk.Destination> destination;
 
