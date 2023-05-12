@@ -2,6 +2,7 @@ package io.conduit.sdk;
 
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 public class Main implements QuarkusApplication {
     @Override
@@ -14,7 +15,10 @@ public class Main implements QuarkusApplication {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            int port = 9000; // default
+            String port = ConfigProvider
+                .getConfig()
+                .getConfigValue("quarkus.grpc.server.port")
+                .getRawValue();
             System.out.printf("1|1|tcp|localhost:%d|grpc%n", port);
         }).start();
 
