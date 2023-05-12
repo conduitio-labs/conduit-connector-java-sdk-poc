@@ -15,10 +15,13 @@ public class Main implements QuarkusApplication {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            String port = ConfigProvider
+            String portStr = ConfigProvider
                 .getConfig()
                 .getConfigValue("quarkus.grpc.server.port")
-                .getRawValue();
+                .getValue()
+                .trim();
+
+            int port = Integer.parseInt(portStr);
             System.out.printf("1|1|tcp|localhost:%d|grpc%n", port);
         }).start();
 
