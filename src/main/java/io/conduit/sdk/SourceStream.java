@@ -20,16 +20,22 @@ public class SourceStream implements StreamObserver<Source.Run.Request> {
     }
 
     private void runReader() {
+        logger.info("runReader() called");
         while (true) {
-            logger.info("reading record...");
-            Record rec = source.read();
-            logger.info("record read!");
+            try {
+                logger.info("reading record...");
+                Record rec = source.read();
+                logger.info("record read!");
 
-            Source.Run.Response recResp = Source.Run.Response.newBuilder()
-                .setRecord(Record.toGRPC(rec))
-                .build();
-            responseObserver.onNext(recResp);
-            logger.info("record sent to stream");
+                Source.Run.Response recResp = Source.Run.Response.newBuilder()
+                    .setRecord(Record.toGRPC(rec))
+                    .build();
+                responseObserver.onNext(recResp);
+                logger.info("record sent to stream");
+            } catch (Exception e) {
+                logger.error("failed reading record", e);
+                responseObserver.onError(e);
+            }
         }
     }
 
