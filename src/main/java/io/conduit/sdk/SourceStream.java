@@ -16,7 +16,7 @@ public class SourceStream implements StreamObserver<Source.Run.Request> {
                         StreamObserver<Source.Run.Response> responseObserver) {
         this.source = source;
         this.responseObserver = responseObserver;
-        new Thread(this::runReader).run();
+        new Thread(this::runReader).start();
     }
 
     private void runReader() {
