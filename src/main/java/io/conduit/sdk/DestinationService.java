@@ -4,6 +4,7 @@ import io.conduit.grpc.Destination;
 import io.conduit.grpc.DestinationPluginGrpc;
 import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -57,6 +58,7 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
     }
 
     @Override
+    @Blocking
     public StreamObserver<Destination.Run.Request> run(StreamObserver<Destination.Run.Response> responseObserver) {
         logger.info("DestinationService::run");
 

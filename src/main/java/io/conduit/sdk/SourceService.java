@@ -5,6 +5,7 @@ import io.conduit.grpc.Source;
 import io.conduit.grpc.SourcePluginGrpc;
 import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -56,6 +57,7 @@ public class SourceService extends SourcePluginGrpc.SourcePluginImplBase {
     }
 
     @Override
+    @Blocking
     public StreamObserver<Source.Run.Request> run(StreamObserver<Source.Run.Response> responseObserver) {
         logger.info("running source");
 
