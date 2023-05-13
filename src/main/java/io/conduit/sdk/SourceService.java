@@ -47,6 +47,8 @@ public class SourceService extends SourcePluginGrpc.SourcePluginImplBase {
         try {
             logger.info("starting source");
             getSource().open(newPosition(request.getPosition()));
+            responseObserver.onNext(Source.Start.Response.newBuilder().build());
+            responseObserver.onCompleted();
         } catch (Exception e) {
             logger.error("failed opening source", e);
             responseObserver.onError(e);

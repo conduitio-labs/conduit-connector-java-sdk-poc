@@ -27,7 +27,7 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
     @Override
     public void configure(Destination.Configure.Request request,
                           StreamObserver<Destination.Configure.Response> responseObserver) {
-        System.out.println("DestinationService::configure");
+        logger.info("DestinationService::configure");
 
         try {
             getDestination().configure(request.getConfigMap());
@@ -43,7 +43,7 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
     @Override
     public void start(Destination.Start.Request request,
                       StreamObserver<Destination.Start.Response> responseObserver) {
-        System.out.println("DestinationService::start");
+        logger.info("DestinationService::start");
 
         try {
             getDestination().open();
@@ -58,7 +58,7 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
 
     @Override
     public StreamObserver<Destination.Run.Request> run(StreamObserver<Destination.Run.Response> responseObserver) {
-        System.out.println("DestinationService::run");
+        logger.info("DestinationService::run");
 
         return new DestinationStream(getDestination(), responseObserver);
     }
@@ -66,7 +66,7 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
     @Override
     public void stop(Destination.Stop.Request request,
                      StreamObserver<Destination.Stop.Response> responseObserver) {
-        System.out.println("DestinationService::stop");
+        logger.info("DestinationService::stop");
 
         responseObserver.onNext(Destination.Stop.Response.newBuilder().build());
         responseObserver.onCompleted();
@@ -76,7 +76,7 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
     @Override
     public void teardown(Destination.Teardown.Request request,
                          StreamObserver<Destination.Teardown.Response> responseObserver) {
-        System.out.println("DestinationService::teardown");
+        logger.info("DestinationService::teardown");
         responseObserver.onNext(Destination.Teardown.Response.newBuilder().build());
         responseObserver.onCompleted();
     }
