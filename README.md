@@ -70,7 +70,6 @@ If you want to learn more about building native executables, please consult http
 - [ ] make it possible to bootstrap a connector without so many manual steps (e.g. template repository, Maven parent project, Maven archetype) 
 - [ ] reflection doesn't quite work
 - [ ] update docs, which were copied from the Go SDK
-- [ ] remove Hello services
 - [ ] validations
 - [ ] destination: batching
 - [ ] destination.stop: wait for last position to be written
