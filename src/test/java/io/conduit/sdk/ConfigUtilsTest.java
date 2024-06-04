@@ -3,6 +3,9 @@ package io.conduit.sdk;
 import java.util.Map;
 
 import io.conduit.sdk.specification.Default;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,21 +14,34 @@ class ConfigUtilsTest {
     @Test
     void testWithDefaults_FieldPresent() {
         assertEquals(
-            Map.of("field", "def"),
-            ConfigUtils.withDefaults(TestConfig.class, Map.of("field", "def"))
+            Map.of("fieldFoo", "def"),
+            ConfigUtils.withDefaults(TestCfg.class, Map.of("fieldFoo", "def"))
         );
     }
 
     @Test
     void testWithDefaults_FieldNotPresent() {
         assertEquals(
-            Map.of("field", "abc"),
-            ConfigUtils.withDefaults(TestConfig.class, Map.of())
+            Map.of("fieldFoo", "abc"),
+            ConfigUtils.withDefaults(TestCfg.class, Map.of())
         );
     }
 
-    private static class TestConfig {
+    @Test
+    void testParse() {
+        assertEquals(
+            new TestCfg("abc", 11),
+            ConfigUtils.parse(Map.of("fieldBar", "11"), TestCfg.class)
+        );
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private static class TestCfg {
         @Default("abc")
-        private String field;
+        private String fieldFoo;
+
+        private int fieldBar;
     }
 }
