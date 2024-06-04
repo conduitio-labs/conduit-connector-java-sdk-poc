@@ -1,8 +1,8 @@
 package io.conduit.sdk;
 
 import io.conduit.grpc.Destination;
+import io.conduit.sdk.record.Record;
 import io.grpc.stub.StreamObserver;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.logging.Logger;
 
 import java.util.List;

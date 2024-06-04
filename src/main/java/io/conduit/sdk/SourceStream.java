@@ -1,6 +1,7 @@
 package io.conduit.sdk;
 
 import io.conduit.grpc.Source;
+import io.conduit.sdk.record.Record;
 import io.grpc.stub.StreamObserver;
 import org.jboss.logging.Logger;
 

@@ -2,12 +2,11 @@ package io.conduit.sdk;
 
 import java.util.Map;
 
+import io.conduit.sdk.record.Position;
+import io.conduit.sdk.record.Record;
+
 // Source fetches records from 3rd party resources and sends them to Conduit.
-// All implementations must embed UnimplementedSource for forward compatibility.
-public interface Source {
-    // Parameters is a map of named Parameters that describe how to configure
-    // the Source.
-    Map<String, Parameter> parameters();
+public interface Source extends Configurable {
 
     /**
      * Configure is the first function to be called in a connector. It provides the

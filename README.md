@@ -21,7 +21,7 @@ This a Java SDK for Conduit connector. This project uses [Quarkus](https://quark
 4. Copy the build configuration from this SDK.
 5. You need to provide a connector specification and a source/destination. That's done by implementing the
 corresponding interfaces: 
-  * `io.conduit.sdk.Specification`
+  * `io.conduit.sdk.specification.Specification`
   * `io.conduit.sdk.Source`
   * `io.conduit.sdk.Destination`
 

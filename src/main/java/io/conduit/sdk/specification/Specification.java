@@ -1,4 +1,4 @@
-package io.conduit.sdk;
+package io.conduit.sdk.specification;
 
 public interface Specification {
     String name();

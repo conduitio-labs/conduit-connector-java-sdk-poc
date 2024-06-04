@@ -1,4 +1,4 @@
-package io.conduit.sdk;
+package io.conduit.sdk.record;
 
 import com.google.protobuf.ByteString;
 import lombok.Builder;
@@ -12,8 +12,6 @@ import java.util.Map;
 @ToString
 public class Record {
     // Operation defines what triggered the creation of a record.
-
-
     public enum Operation {
         UNSPECIFIED,
         // Records with operation create contain data of a newly created entity.
@@ -39,7 +37,7 @@ public class Record {
             return null;
         }
 
-        return io.conduit.sdk.Record.builder()
+        return Record.builder()
             .position(toSDKPosition(grpcRecord.getPosition()))
             .metadata(grpcRecord.getMetadataMap())
             .operation(toSDKOperation(grpcRecord.getOperation()))
@@ -69,7 +67,7 @@ public class Record {
         return () -> position.toByteArray();
     }
 
-    private static io.conduit.sdk.Record.Operation toSDKOperation(io.conduit.grpc.Operation operation) {
+    private static Record.Operation toSDKOperation(io.conduit.grpc.Operation operation) {
         Map<io.conduit.grpc.Operation, Operation> m = Map.of(
             io.conduit.grpc.Operation.OPERATION_UNSPECIFIED, Operation.UNSPECIFIED,
             io.conduit.grpc.Operation.OPERATION_CREATE, Operation.CREATE,
