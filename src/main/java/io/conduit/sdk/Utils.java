@@ -4,6 +4,9 @@ import com.google.protobuf.ByteString;
 import io.conduit.sdk.record.Position;
 
 public class Utils {
+    private Utils() {
+    }
+
     public static Position newPosition(ByteString position) {
         if (position == null) {
             return null;

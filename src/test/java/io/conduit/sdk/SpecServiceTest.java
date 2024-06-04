@@ -1,6 +1,7 @@
 package io.conduit.sdk;
 
 import io.conduit.grpc.Specifier;
+import io.conduit.sdk.specification.Default;
 import io.conduit.sdk.specification.GreaterThan;
 import io.conduit.sdk.specification.LessThan;
 import io.conduit.sdk.specification.Regex;
@@ -64,7 +65,7 @@ class SpecServiceTest {
 
     @Test
     void testSourceParams() {
-        when(source.defaultConfig()).thenReturn(new SourceConfig("abc000def", 101, 199));
+        when(source.configClass()).thenReturn(SourceConfig.class);
 
         underTest.specify(Specifier.Specify.Request.newBuilder().build(), responseObs);
 
@@ -77,7 +78,6 @@ class SpecServiceTest {
         assertEquals(
             Specifier.Parameter.newBuilder()
                 .setType(Specifier.Parameter.Type.TYPE_STRING)
-                .setDefault("abc000def")
                 .addValidations(
                     Specifier.Parameter.Validation.newBuilder()
                         .setType(Specifier.Parameter.Validation.Type.TYPE_REGEX)
@@ -128,9 +128,11 @@ class SpecServiceTest {
         String regexField;
 
         @GreaterThan(100)
+        @Default("101")
         int intFieldGreaterThan;
 
         @LessThan(200)
+        @Default("199")
         long longFieldLessThan;
     }
 }

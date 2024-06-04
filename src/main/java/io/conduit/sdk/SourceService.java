@@ -33,7 +33,9 @@ public class SourceService extends SourcePluginGrpc.SourcePluginImplBase {
     public void configure(Source.Configure.Request request, StreamObserver<Source.Configure.Response> responseObserver) {
         try {
             logger.info("configuring source");
-            getSource().configure(request.getConfigMap());
+            getSource().configure(
+                ConfigUtils.withDefaults(getSource().configClass(), request.getConfigMap())
+            );
             responseObserver.onNext(Source.Configure.Response.newBuilder().build());
         } catch (Exception e) {
             logger.error("failed configuring source", e);

@@ -16,10 +16,13 @@ import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
 import jakarta.enterprise.inject.Instance;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.reflect.FieldUtils;
 
 import static java.util.Collections.emptyMap;
 
 @GrpcService
+@Slf4j
 public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
     private static final Set<Class> INT_TYPES = Set.of(
         Integer.class,
@@ -48,6 +51,14 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
     public void specify(Specifier.Specify.Request request,
                         StreamObserver<Specifier.Specify.Response> responseObserver) {
 
+        log.info("specify called");
+
+        log.info("extracting source params");
+        Map<String, Specifier.Parameter> srcParams = extractParams(source);
+
+        log.info("extracting destination params");
+        Map<String, Specifier.Parameter> dstParams = extractParams(destination);
+
         responseObserver.onNext(
             Specifier.Specify.Response.newBuilder()
                 .setName(specification().name())
@@ -55,8 +66,8 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
                 .setDescription(specification().description())
                 .setVersion(specification().version())
                 .setAuthor(specification().author())
-                .putAllSourceParams(extractParams(source))
-                .putAllDestinationParams(extractParams(destination))
+                .putAllSourceParams(srcParams)
+                .putAllDestinationParams(dstParams)
                 .build()
         );
         responseObserver.onCompleted();
@@ -64,29 +75,34 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
 
     private Map<String, Specifier.Parameter> extractParams(Instance<? extends Configurable> instance) {
         if (instance == null || instance.isUnsatisfied()) {
+            log.info("no source/destination instance");
             return emptyMap();
         }
 
-        Object config = instance.get().defaultConfig();
-        if (config == null) {
+        Class cfgClass = instance.get().configClass();
+        if (cfgClass == null) {
+            log.info("no config class");
             return emptyMap();
         }
 
-        return Arrays.stream(config.getClass().getDeclaredFields()).collect(Collectors.toMap(
-            Field::getName,
-            f -> extractParams(f, config)
-        ));
+        return Arrays.stream(FieldUtils.getAllFields(cfgClass))
+            .collect(Collectors.toMap(
+                Field::getName,
+                this::extractParams
+            ));
     }
 
     @SneakyThrows
-    private Specifier.Parameter extractParams(Field f, Object config) {
-        f.setAccessible(true);
-
+    private Specifier.Parameter extractParams(Field f) {
         Specifier.Parameter.Builder paramBuilder = Specifier.Parameter.newBuilder()
-            .setType(getType(f))
-            .setDefault(String.valueOf(f.get(config)));
+            .setType(getType(f));
 
-        for (Annotation annotation : f.getDeclaredAnnotations()) {
+        String def = getDefaultValue(f);
+        if (def != null) {
+            paramBuilder.setDefault(def);
+        }
+
+        for (Annotation annotation : f.getAnnotations()) {
             switch (annotation) {
                 case Regex p -> paramBuilder.addValidations(
                     Specifier.Parameter.Validation.newBuilder()
@@ -112,11 +128,17 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
                         .setValue(String.valueOf(lt.value()))
                         .build()
                 );
-                default -> throw new IllegalStateException("Unexpected value: " + annotation);
+                default -> {
+                }
             }
         }
 
         return paramBuilder.build();
+    }
+
+    private String getDefaultValue(Field f) {
+        Default def = f.getAnnotation(Default.class);
+        return def == null ? null : def.value();
     }
 
     private Specifier.Parameter.Type getType(Field f) {
