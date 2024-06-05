@@ -7,6 +7,7 @@ import io.conduit.sdk.record.Record;
 
 // Destination receives records from Conduit and writes them to 3rd party
 // resources.
+// todo if used with a generic type, it doesn't get wired up
 public interface Destination extends Configurable {
     // Configure is the first function to be called in a connector. It provides the
     // connector with the configuration that needs to be validated and stored.

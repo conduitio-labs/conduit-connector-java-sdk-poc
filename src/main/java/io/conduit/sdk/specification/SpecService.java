@@ -85,6 +85,7 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
             return emptyMap();
         }
 
+        // todo take name from @JsonProperty
         return Arrays.stream(FieldUtils.getAllFields(cfgClass))
             .collect(Collectors.toMap(
                 Field::getName,

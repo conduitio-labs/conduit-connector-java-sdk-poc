@@ -1,6 +1,5 @@
 package io.conduit.sdk;
 
-import com.google.protobuf.ByteString;
 import io.conduit.grpc.Source;
 import io.conduit.grpc.SourcePluginGrpc;
 import io.grpc.stub.StreamObserver;

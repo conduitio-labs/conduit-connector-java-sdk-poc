@@ -1,11 +1,11 @@
 package io.conduit.sdk.record;
 
+import java.util.Map;
+
 import com.google.protobuf.ByteString;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.util.Map;
 
 @Builder
 @Getter
