@@ -4,22 +4,15 @@ This a Java SDK for Conduit connector. This project uses [Quarkus](https://quark
 
 ## Creating a new connector
 1. Create a new Maven project
-2. Add this SDK as a dependency:
-    ```xml
-    <dependency>
-        <groupId>io.conduit</groupId>
-        <artifactId>conduit-connector-java-sdk-poc</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-    ```
-3. Create `src/main/resources/application.properties` with the following contents:
-    ```properties
-    quarkus.package.main-class=io.conduit.sdk.Main
-    quarkus.grpc.server.port=<grpc port goes here>
-    quarkus.http.port=<http port goes here>
-    ```
-4. Copy the build configuration from this SDK.
-5. You need to provide a connector specification and a source/destination. That's done by implementing the
+2. Add the following parent to `pom.xml`:
+   ```xml
+   <parent>
+     <groupId>io.conduit</groupId>
+     <artifactId>conduit-connector-java-parent</artifactId>
+     <version>0.1.0-SNAPSHOT</version>
+   </parent>
+   ```
+3. You need to provide a connector specification and a source/destination. That's done by implementing the
 corresponding interfaces: 
   * `io.conduit.sdk.specification.Specification`
   * `io.conduit.sdk.Source`
@@ -44,7 +37,7 @@ You can run your application in dev mode that enables live coding using:
 
 If you want to build an _über-jar_, execute the following command:
 ```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+./mvnw package -Puber-jar
 ```
 
 The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
@@ -67,7 +60,7 @@ If you want to learn more about building native executables, please consult http
 
 ## ToDos
 
-- [ ] make it possible to bootstrap a connector without so many manual steps (e.g. template repository, Maven parent project, Maven archetype) 
+- [x] make it possible to bootstrap a connector without so many manual steps (e.g. template repository, Maven parent project, Maven archetype) 
 - [ ] reflection doesn't quite work
 - [ ] update docs, which were copied from the Go SDK
 - [ ] validations
