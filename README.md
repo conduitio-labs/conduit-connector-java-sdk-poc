@@ -60,10 +60,12 @@ If you want to learn more about building native executables, please consult http
 
 ## ToDos
 
-- [x] make it possible to bootstrap a connector without so many manual steps (e.g. template repository, Maven parent project, Maven archetype) 
-- [ ] reflection doesn't quite work
+- [x] make it possible to bootstrap a connector without so many manual steps (e.g. template repository, Maven parent
+  project, Maven archetype)
+- [x] reflection doesn't quite work
 - [ ] update docs, which were copied from the Go SDK
-- [ ] validations
+- [x] validations
 - [ ] destination: batching
 - [ ] destination.stop: wait for last position to be written
-- [ ] logging
+- [ ] logging: currently the SDK logs into a file. Logging into the console needs to happen only after the handshake
+  with Conduit is done.
