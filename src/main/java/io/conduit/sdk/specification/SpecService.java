@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import io.conduit.grpc.Specifier;
 import io.conduit.grpc.SpecifierPluginGrpc;
@@ -15,11 +14,15 @@ import io.conduit.sdk.Source;
 import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
 import jakarta.enterprise.inject.Instance;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toMap;
 
 @GrpcService
 @Slf4j
@@ -79,7 +82,10 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
             return emptyMap();
         }
 
-        Class cfgClass = instance.get().configClass();
+        return extractParamsFromClass("", instance.get().configClass());
+    }
+
+    private Map<String, Specifier.Parameter> extractParamsFromClass(String prefix, Class cfgClass) {
         if (cfgClass == null) {
             log.info("no config class");
             return emptyMap();
@@ -87,16 +93,30 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
 
         // todo take name from @JsonProperty
         return Arrays.stream(FieldUtils.getAllFields(cfgClass))
-            .collect(Collectors.toMap(
-                Field::getName,
-                this::extractParams
+            .map(this::extractParamsFromField)
+            .flatMap(m -> m.entrySet().stream())
+            .collect(toMap(
+                entry -> withPrefix(prefix, entry),
+                Map.Entry::getValue
             ));
     }
 
+    private static String withPrefix(String prefix, Map.Entry<String, Specifier.Parameter> entry) {
+        if ("".equals(prefix)) {
+            return entry.getKey();
+        }
+
+        return prefix + "." + entry.getKey();
+    }
+
     @SneakyThrows
-    private Specifier.Parameter extractParams(Field f) {
+    private Map<String, Specifier.Parameter> extractParamsFromField(Field f) {
+        if (!f.getType().getPackageName().startsWith("java.lang")) {
+            return extractParamsFromClass(f.getName(), f.getType());
+        }
+
         Specifier.Parameter.Builder paramBuilder = Specifier.Parameter.newBuilder()
-            .setType(getType(f));
+            .setType(getParameterType(f));
 
         String def = getDefaultValue(f);
         if (def != null) {
@@ -105,10 +125,10 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
 
         for (Annotation annotation : f.getAnnotations()) {
             switch (annotation) {
-                case Regex p -> paramBuilder.addValidations(
+                case Pattern p -> paramBuilder.addValidations(
                     Specifier.Parameter.Validation.newBuilder()
                         .setType(Specifier.Parameter.Validation.Type.TYPE_REGEX)
-                        .setValue(p.value())
+                        .setValue(p.regexp())
                         .build()
                 );
                 case Required ignored -> paramBuilder.addValidations(
@@ -116,17 +136,17 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
                         .setType(Specifier.Parameter.Validation.Type.TYPE_REQUIRED)
                         .build()
                 );
-                case GreaterThan gt -> paramBuilder.addValidations(
+                case Min min -> paramBuilder.addValidations(
                     Specifier.Parameter.Validation.newBuilder()
                         .setType(Specifier.Parameter.Validation.Type.TYPE_GREATER_THAN)
-                        .setValue(String.valueOf(gt.value()))
+                        .setValue(String.valueOf(min.value()))
                         .build()
                 );
 
-                case LessThan lt -> paramBuilder.addValidations(
+                case Max max -> paramBuilder.addValidations(
                     Specifier.Parameter.Validation.newBuilder()
                         .setType(Specifier.Parameter.Validation.Type.TYPE_LESS_THAN)
-                        .setValue(String.valueOf(lt.value()))
+                        .setValue(String.valueOf(max.value()))
                         .build()
                 );
                 default -> {
@@ -134,7 +154,7 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
             }
         }
 
-        return paramBuilder.build();
+        return Map.of(f.getName(), paramBuilder.build());
     }
 
     private String getDefaultValue(Field f) {
@@ -142,7 +162,7 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
         return def == null ? null : def.value();
     }
 
-    private Specifier.Parameter.Type getType(Field f) {
+    private Specifier.Parameter.Type getParameterType(Field f) {
         if (String.class.equals(f.getType())) {
             return Specifier.Parameter.Type.TYPE_STRING;
         }
@@ -150,7 +170,7 @@ public class SpecService extends SpecifierPluginGrpc.SpecifierPluginImplBase {
             return Specifier.Parameter.Type.TYPE_INT;
         }
 
-        throw new IllegalArgumentException("boom");
+        throw new IllegalArgumentException("unsupported field type: " + f.getType().getName());
     }
 
     private Specification specification() {

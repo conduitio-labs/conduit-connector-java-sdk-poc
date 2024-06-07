@@ -2,15 +2,18 @@ package io.conduit.sdk;
 
 import io.conduit.grpc.Specifier;
 import io.conduit.sdk.specification.Default;
-import io.conduit.sdk.specification.GreaterThan;
-import io.conduit.sdk.specification.LessThan;
-import io.conduit.sdk.specification.Regex;
 import io.conduit.sdk.specification.Required;
 import io.conduit.sdk.specification.SpecService;
 import io.conduit.sdk.specification.Specification;
 import io.grpc.stub.StreamObserver;
 import jakarta.enterprise.inject.Instance;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -119,20 +122,37 @@ class SpecServiceTest {
                 ).build(),
             sourceParams.get("longFieldLessThan")
         );
+
+        // @LessThan
+        assertEquals(
+            Specifier.Parameter.newBuilder()
+                .setType(Specifier.Parameter.Type.TYPE_STRING)
+                .build(),
+            sourceParams.get("nestedConfig.nestedStringConfig")
+        );
     }
 
     @AllArgsConstructor
     public static class SourceConfig {
-        @Regex("abc.*def")
+        @Pattern(regexp = "abc.*def")
         @Required
         String regexField;
 
-        @GreaterThan(100)
         @Default("101")
+        @Min(100)
         int intFieldGreaterThan;
 
-        @LessThan(200)
         @Default("199")
+        @Max(200)
         long longFieldLessThan;
+
+        @Valid
+        SourceNestedConfig nestedConfig;
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class SourceNestedConfig {
+        String nestedStringConfig;
     }
 }

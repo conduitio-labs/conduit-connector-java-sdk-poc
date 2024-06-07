@@ -40,6 +40,20 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.wnameless.json</groupId>
+            <artifactId>json-flattener</artifactId>
+            <version>0.16.6</version>
+        </dependency>
 
         <dependency>
             <groupId>io.github.resilience4j</groupId>
