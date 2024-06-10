@@ -3,6 +3,7 @@
 This a Java SDK for Conduit connector. This project uses [Quarkus](https://quarkus.io/).
 
 ## Creating a new connector
+
 1. Create a new Maven project
 2. Add the following parent to `pom.xml`:
    ```xml
@@ -13,20 +14,23 @@ This a Java SDK for Conduit connector. This project uses [Quarkus](https://quark
    </parent>
    ```
 3. You need to provide a connector specification and a source/destination. That's done by implementing the
-corresponding interfaces: 
-  * `io.conduit.sdk.specification.Specification`
-  * `io.conduit.sdk.Source`
-  * `io.conduit.sdk.Destination`
+   corresponding interfaces:
+
+* `io.conduit.sdk.specification.Specification`
+* `io.conduit.sdk.Source`
+* `io.conduit.sdk.Destination`
 
 and then annotating them with `@jakarta.enterprise.context.ApplicationScoped`.
 
 ## Examples:
+
 * Source connector: https://github.com/conduitio-labs/conduit-connector-generator-java
 * Destination connector: https://github.com/conduitio-labs/conduit-connector-file-java
 
 ## Running the connector in dev mode (not tested)
 
 You can run your application in dev mode that enables live coding using:
+
 ```shell script
 ./mvnw compile quarkus:dev
 ```
@@ -36,6 +40,7 @@ You can run your application in dev mode that enables live coding using:
 ## Packaging and running the connector
 
 If you want to build an _über-jar_, execute the following command:
+
 ```shell script
 ./mvnw package -Puber-jar
 ```
@@ -44,12 +49,14 @@ The application, packaged as an _über-jar_, is now runnable using `java -jar ta
 
 ## Creating a native executable
 
-You can create a native executable using: 
+You can create a native executable using:
+
 ```shell script
 ./mvnw package -Pnative
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
+Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+
 ```shell script
 ./mvnw package -Pnative -Dquarkus.native.container-build=true
 ```
