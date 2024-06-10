@@ -3,13 +3,12 @@ package io.conduit.sdk;
 import java.util.List;
 import java.util.Map;
 
+import io.conduit.sdk.record.Record;
+
 // Destination receives records from Conduit and writes them to 3rd party
 // resources.
-public interface Destination {
-    // Parameters is a map of named Parameters that describe how to configure
-    // the Destination.
-    Map<String, Parameter> parameters();
-
+// todo if used with a generic type, it doesn't get wired up
+public interface Destination extends Configurable {
     // Configure is the first function to be called in a connector. It provides the
     // connector with the configuration that needs to be validated and stored.
     // In case the configuration is not valid it should return an error.

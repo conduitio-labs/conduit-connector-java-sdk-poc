@@ -1,4 +1,4 @@
-package io.conduit.sdk;
+package io.conduit.sdk.record;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

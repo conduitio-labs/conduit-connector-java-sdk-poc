@@ -1,11 +1,11 @@
 package io.conduit.sdk;
 
-import io.conduit.grpc.Destination;
-import io.grpc.stub.StreamObserver;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.jboss.logging.Logger;
-
 import java.util.List;
+
+import io.conduit.grpc.Destination;
+import io.conduit.sdk.record.Record;
+import io.grpc.stub.StreamObserver;
+import org.jboss.logging.Logger;
 
 public class DestinationStream implements StreamObserver<Destination.Run.Request> {
     private static final Logger logger = Logger.getLogger(DestinationStream.class);

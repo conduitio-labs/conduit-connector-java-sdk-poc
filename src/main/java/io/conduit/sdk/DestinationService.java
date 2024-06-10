@@ -2,6 +2,7 @@ package io.conduit.sdk;
 
 import io.conduit.grpc.Destination;
 import io.conduit.grpc.DestinationPluginGrpc;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.quarkus.grpc.GrpcService;
 import io.smallrye.common.annotation.Blocking;
@@ -31,12 +32,20 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
         logger.info("DestinationService::configure");
 
         try {
+            var cfgMap = ConfigUtils.validateAndFlatten(getDestination().configClass(), request.getConfigMap());
+            getDestination().configure(cfgMap);
+
             getDestination().configure(request.getConfigMap());
             responseObserver.onNext(Destination.Configure.Response.newBuilder().build());
             responseObserver.onCompleted();
         } catch (Exception e) {
             logger.error("failed configuring destination", e);
-            responseObserver.onError(e);
+            responseObserver.onError(
+                Status.INTERNAL
+                    .withDescription("couldn't configure task: " + e)
+                    .withCause(e)
+                    .asException()
+            );
         }
 
     }
@@ -52,7 +61,12 @@ public class DestinationService extends DestinationPluginGrpc.DestinationPluginI
             responseObserver.onCompleted();
         } catch (Exception e) {
             logger.error("failed starting destination", e);
-            responseObserver.onError(e);
+            responseObserver.onError(
+                Status.INTERNAL
+                    .withDescription("couldn't start destination: " + e)
+                    .withCause(e)
+                    .asException()
+            );
         }
 
     }

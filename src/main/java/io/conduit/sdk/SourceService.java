@@ -1,6 +1,5 @@
 package io.conduit.sdk;
 
-import com.google.protobuf.ByteString;
 import io.conduit.grpc.Source;
 import io.conduit.grpc.SourcePluginGrpc;
 import io.grpc.stub.StreamObserver;
@@ -33,7 +32,9 @@ public class SourceService extends SourcePluginGrpc.SourcePluginImplBase {
     public void configure(Source.Configure.Request request, StreamObserver<Source.Configure.Response> responseObserver) {
         try {
             logger.info("configuring source");
-            getSource().configure(request.getConfigMap());
+
+            var cfgMap = ConfigUtils.validateAndFlatten(getSource().configClass(), request.getConfigMap());
+            getSource().configure(cfgMap);
             responseObserver.onNext(Source.Configure.Response.newBuilder().build());
         } catch (Exception e) {
             logger.error("failed configuring source", e);
